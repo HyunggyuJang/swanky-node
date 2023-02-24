@@ -42,7 +42,7 @@ jobs:
     - uses: actions/upload-artifact@master
       with:
         name: swanky-node-ubuntu-latest-aarch64
-        path: target/aarch64-unknown-linux-gnu/release/swankybb-node
+        path: target/aarch64-unknown-linux-gnu/release/swanky-node
 
     - uses: actions/upload-artifact@master
       with:
