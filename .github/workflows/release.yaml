@@ -22,7 +22,7 @@ jobs:
         version: '3.x'
 
     - name: Install linux-gnu-gcc
-      run: sudo apt install -y gcc-aarch64-linux-gnu
+      run: sudo apt install -y gcc-aarch64-linux-gnu aarch64-linux-gnu-g++
 
     - name: Install & display rust toolchain
       run: |
