@@ -76,8 +76,8 @@ jobs:
       run: rustup target list --installed
 
     - name: Build optimized binary
-      run: |
-        cargo zigbuild --release --verbose --target universal2-apple-darwin
+      run: cargo zigbuild --release --verbose --target universal2-apple-darwin
+
     - uses: actions/upload-artifact@master
       with:
         name: swanky-node-macOS-latest-universal
