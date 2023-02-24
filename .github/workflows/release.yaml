@@ -67,23 +67,21 @@ jobs:
         rustup target add aarch64-apple-darwin
         rustup show
 
+    - uses: goto-bus-stop/setup-zig@v2
+
+    - name: Install zigbuild
+      run: cargo install cargo-zigbuild
+
     - name: Check targets are installed correctly
       run: rustup target list --installed
 
     - name: Build optimized binary
       run: |
-        cargo build --release --verbose --target aarch64-apple-darwin
-        cargo build --release --verbose --target x86_64-apple-darwin
-        mkdir -p ./artifacts/swanky-node-mac/
-        'lipo
-          ./target/x86_64-apple-darwin/release/swanky-node
-          ./target/aarch64-apple-darwin/release/swanky-node
-          -create
-          -output ./artifacts/swanky-node-mac/swanky-node'
+        cargo build --release --verbose --target universal2-apple-darwin
     - uses: actions/upload-artifact@master
       with:
         name: swanky-node-macOS-latest-universal
-        path: artifacts/swanky-node-mac/swanky-node'
+        path: target/release/swanky-node
 
   publish-release-draft:
     needs: [native-linux, native-macOS]
