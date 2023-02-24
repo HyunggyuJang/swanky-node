@@ -21,21 +21,15 @@ jobs:
       with:
         version: '3.x'
 
-    - name: Install linux-gnu-gcc
-      run: sudo apt install -y gcc-aarch64-linux-gnu aarch64-linux-gnu-g++
-
-    - name: Install & display rust toolchain
-      run: |
-        rustup target add aarch64-unknown-linux-gnu
-        rustup show
-
     - name: Check targets are installed correctly
       run: rustup target list --installed
 
     - name: Build optimized binary
+      uses: goto-bus-stop/setup-zig@v2
       run: |
-        cargo build --release --verbose --target aarch64-unknown-linux-gnu
-        cargo build --release --verbose --target x86_64-unknown-linux-gnu
+        cargo install cargo-zigbuild
+        cargo zigbuild --release --verbose --target aarch64-unknown-linux-gnu
+        cargo zigbuild --release --verbose --target x86_64-unknown-linux-gnu
 
     - uses: actions/upload-artifact@master
       with:
