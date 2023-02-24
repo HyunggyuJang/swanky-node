@@ -1,12 +1,14 @@
 name: Release Build
 on:
+  push:
+    tags:
+    - v[0-9]+.[0-9]+.[0-9]+*
   workflow_dispatch:
 
 env:
   SUBWASM_VERSION: 0.16.1
 jobs:
   native-linux:
-    needs: checks-and-tests
     runs-on: ubuntu-latest
     steps:
     - name: Checkout the source code
@@ -23,9 +25,7 @@ jobs:
       run: rustup show
 
     - name: Check targets are installed correctly
-      run: |
-        rustup target add aarch64-unknown-linux-gnu
-        rustup target list --installed
+      run: rustup target list --installed
 
     - name: Build optimized binary
       run: |
