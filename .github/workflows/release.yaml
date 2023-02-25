@@ -29,10 +29,13 @@ jobs:
     - name: Check targets are installed correctly
       run: rustup target list --installed
 
-    - uses: goto-bus-stop/setup-zig@v2
+    - name: Install zig
+      uses: korandoru/setup-zig@v1
+      with:
+        zig-version: "0.10.1"
 
     - name: Install zigbuild
-      run: cargo install cargo-zigbuild
+      run: cargo install cargo-zigbuild --git https://github.com/rust-cross/cargo-zigbuild
 
     - name: Build optimized binary
       run: |
