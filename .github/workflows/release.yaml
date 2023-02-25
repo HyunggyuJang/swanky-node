@@ -31,6 +31,8 @@ jobs:
 
     - name: Install zig
       uses: korandoru/setup-zig@v1
+      with:
+        zig-version: "master"
 
     - name: Install zigbuild
       run: cargo install cargo-zigbuild --git https://github.com/rust-cross/cargo-zigbuild
