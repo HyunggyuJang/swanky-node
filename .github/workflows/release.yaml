@@ -5,8 +5,10 @@ on:
     - v[0-9]+.[0-9]+.[0-9]+*
   workflow_dispatch:
 
-env:
-  SUBWASM_VERSION: 0.16.1
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   native-linux:
     runs-on: ubuntu-latest
@@ -35,12 +37,12 @@ jobs:
         zig-version: "master"
 
     - name: Install zigbuild
-      run: cargo install cargo-zigbuild --git https://github.com/rust-cross/cargo-zigbuild
+      run: cargo install cargo-zigbuild
 
     - name: Build optimized binary
       run: |
-        cargo zigbuild --release --verbose --target aarch64-unknown-linux-gnu
-        cargo build --release --verbose --target x86_64-unknown-linux-gnu
+        cargo zigbuild --release --target aarch64-unknown-linux-gnu
+        cargo build --release --target x86_64-unknown-linux-gnu
 
     - uses: actions/upload-artifact@master
       with:
@@ -79,10 +81,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        - os: ubuntu
-          arch: aarch64
-        - os: ubuntu
-          arch: x86_64
+        os: ubuntu
+        arch: [aarch64, x86_64]
     steps:
     - name: Create download folder
       run: |
