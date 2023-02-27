@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: ubuntu
+        os: [ubuntu]
         arch: [aarch64, x86_64]
     steps:
     - name: Create download folder
