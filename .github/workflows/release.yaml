@@ -79,11 +79,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - os: ubuntu
-            arch: aarch64
-          - os: ubuntu
-            arch: x86_64
+        - os: ubuntu
+          arch: aarch64
+        - os: ubuntu
+          arch: x86_64
     steps:
     - name: Create download folder
       run: |
