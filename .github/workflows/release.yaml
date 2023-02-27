@@ -5,8 +5,10 @@ on:
     - v[0-9]+.[0-9]+.[0-9]+*
   workflow_dispatch:
 
-env:
-  SUBWASM_VERSION: 0.16.1
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   native-linux:
     runs-on: ubuntu-latest
@@ -35,25 +37,58 @@ jobs:
         zig-version: "master"
 
     - name: Install zigbuild
-      run: cargo install cargo-zigbuild --git https://github.com/rust-cross/cargo-zigbuild
+      run: cargo install cargo-zigbuild
 
     - name: Build optimized binary
       run: |
-        cargo zigbuild --release --verbose --target aarch64-unknown-linux-gnu
-        cargo build --release --verbose --target x86_64-unknown-linux-gnu
-
-    - uses: actions/upload-artifact@master
-      with:
-        name: swanky-node-ubuntu-latest-aarch64
-        path: target/aarch64-unknown-linux-gnu/release/swanky-node
+        cargo build --release --target x86_64-unknown-linux-gnu
+        cargo zigbuild --release --target aarch64-unknown-linux-gnu
 
     - uses: actions/upload-artifact@master
       with:
         name: swanky-node-ubuntu-latest-x86_64
         path: target/x86_64-unknown-linux-gnu/release/swanky-node
 
+    - uses: actions/upload-artifact@master
+      with:
+        name: swanky-node-ubuntu-latest-aarch64
+        path: target/aarch64-unknown-linux-gnu/release/swanky-node
+
+  native-macos:
+    runs-on: macos-latest
+    steps:
+    - name: Checkout the source code
+      uses: actions/checkout@v3
+      with:
+        submodules: true
+
+    - name: Install Protoc
+      uses: arduino/setup-protoc@v1
+      with:
+        version: '3.x'
+
+    - name: Install & display rust toolchain
+      run: |
+        rustup target add aarch64-apple-darwin
+        rustup show
+
+    - name: Check targets are installed correctly
+      run: rustup target list --installed
+
+    - name: Build optimized binary
+      run: |
+        cargo build --release --target x86_64-apple-darwin
+        cargo build --release --target aarch64-apple-darwin
+        mkdir -p ./artifacts/swanky-node-mac/
+        lipo ./target/x86_64-apple-darwin/release/swanky-node ./target/aarch64-apple-darwin/release/swanky-node -create -output ./artifacts/swanky-node-mac/swanky-node
+
+    - uses: actions/upload-artifact@master
+      with:
+        name: swanky-node-macOS-latest-universal
+        path: artifacts/swanky-node-mac/swanky-node
+
   publish-release-draft:
-    needs: native-linux
+    needs: [native-linux, native-macOS]
     runs-on: ubuntu-latest
     outputs:
       release_url: ${{ steps.create-release.outputs.html_url }}
@@ -79,11 +114,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        os: [ubuntu]
+        arch: [aarch64, x86_64]
         include:
-          - os: ubuntu
-            arch: aarch64
-          - os: ubuntu
-            arch: x86_64
+          - os: macOS
+            arch: universal
     steps:
     - name: Create download folder
       run: |
